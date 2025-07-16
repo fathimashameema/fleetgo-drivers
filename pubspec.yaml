@@ -1,0 +1,96 @@
+name: fleetgo_drivers
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  
+  cupertino_icons: ^1.0.8
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  flutter_native_splash: ^2.4.4
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  font_awesome_flutter: ^10.8.0
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
+  pinput: ^5.0.1
+  equatable: ^2.0.7
+  cloud_firestore: ^5.6.5
+  file_picker: ^9.1.0
+  driver_repository:
+    path: packages/driver_repository
+  mailer: ^6.4.1
+  otp_resend_timer: ^1.0.0
+  google_sign_in: ^6.3.0
+  shimmer: ^3.0.0
+  easy_radio: ^0.0.3
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^4.0.0
+
+
+flutter:
+
+  
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/logos/
+    - assets/images/auth/
+
+
+  fonts:
+    - family: adlam
+      fonts:
+        - asset: assets\fonts\adlam\ADLaMDisplay-Regular.ttf
+        - asset: assets\fonts\adlam\LeagueSpartan-VariableFont_wght.ttf
+        - asset: assets\fonts\adlam\LeckerliOne-Regular.ttf
+       
+    - family: arimo
+      fonts:
+        - asset: assets\fonts\adlam\Arimo-VariableFont_wght.ttf
+        - asset: assets\fonts\adlam\ADLaMDisplay-Regular.ttf
+        - asset: assets\fonts\adlam\LeagueSpartan-VariableFont_wght.ttf
+        - asset: assets\fonts\adlam\LeckerliOne-Regular.ttf
+    - family: Roboto regular
+      fonts:
+    
+        - asset: assets\fonts\roboto\Roboto_Condensed-Regular.ttf
+    - family: Roboto medium
+      fonts:
+       
+        - asset: assets\fonts\roboto\Roboto_Condensed-Medium.ttf
+
+    - family: Roboto light
+      fonts:
+       
+        - asset: assets\fonts\roboto\Roboto_Condensed-Light.ttf
+    - family: Roboto bold
+      fonts:
+        - asset: assets\fonts\roboto\Roboto_Condensed-Bold.ttf
+       
+    - family: Roboto black
+      fonts:
+        - asset: assets\fonts\roboto\Roboto_Condensed-Black.ttf
+       
+
+          
+  
+
