@@ -27,7 +27,7 @@ class AddProfile extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Spacer(),
+                  const Spacer(),
                   Column(
                     children: [
                       Text(
@@ -40,12 +40,12 @@ class AddProfile extends StatelessWidget {
                       )
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   CircleAvatar(
                       radius: 92,
                       backgroundColor: TColors.grey,
                       child: Image.asset(TImages.addProfile)),
-                  Spacer(),
+                  const Spacer(),
                   SizedBox(
                     width: screenWidth * 0.3,
                     child: ElevatedButton(
@@ -56,7 +56,7 @@ class AddProfile extends StatelessWidget {
                         },
                         child: const Text('Add')),
                   ),
-                  Spacer()
+                  const Spacer()
                 ],
               ),
             ),

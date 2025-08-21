@@ -1,5 +1,4 @@
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/driver_or_renter.dart';
-import 'package:fleetgo_drivers/presentation/screens/auth/registration/vehicle_registration.dart';
 import 'package:fleetgo_drivers/resources/colors/colors.dart';
 import 'package:fleetgo_drivers/resources/images/images.dart';
 import 'package:flutter/material.dart';

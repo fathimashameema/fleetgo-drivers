@@ -8,15 +8,20 @@ class DriverEntity extends Equatable {
   final String? profile;
   final String password;
   final bool isProfileComplete;
+  final int registrationProgress;
+  final String role;
 
-  const DriverEntity(
-      {required this.id,
-      required this.email,
-      required this.name,
-      required this.number,
-      this.profile,
-      required this.password,
-      this.isProfileComplete = false,});
+  const DriverEntity({
+    required this.id,
+    required this.email,
+    required this.name,
+    required this.number,
+    this.profile,
+    required this.password,
+    this.isProfileComplete = false,
+    required this.registrationProgress,
+    required this.role,
+  });
 
   Map<String, Object?> toDocument() {
     return {
@@ -26,7 +31,9 @@ class DriverEntity extends Equatable {
       'number': number,
       'profile': profile,
       'password': password,
-      'isProfileComplete':isProfileComplete,
+      'isProfileComplete': isProfileComplete,
+      'registrationProgress': registrationProgress,
+      'role': role,
     };
   }
 
@@ -38,15 +45,26 @@ class DriverEntity extends Equatable {
       profile: doc['profile'] as String,
       number: doc['number'] as String,
       password: doc['password'] as String,
-      isProfileComplete: doc['isProfileComplete'] as bool
+      isProfileComplete: doc['isProfileComplete'] as bool,
+      registrationProgress: doc['registrationProgress'] as int,
+      role: doc['role'] as String,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, email, profile, password, isProfileComplete];
+  List<Object?> get props => [
+        id,
+        name,
+        email,
+        profile,
+        password,
+        isProfileComplete,
+        registrationProgress,
+        role
+      ];
 
   @override
   String toString() {
-    return 'DriverEntity(id: $id, email: $email, name: $name,number:$number, profile: $profile , password:$password , isProfileComplete:$isProfileComplete)';
+    return 'DriverEntity(id: $id, email: $email, name: $name,number:$number, profile: $profile , password:$password , isProfileComplete:$isProfileComplete, registrationProgress:$registrationProgress, role:$role)';
   }
 }

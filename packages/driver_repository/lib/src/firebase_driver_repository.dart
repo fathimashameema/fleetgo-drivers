@@ -22,14 +22,12 @@ class FirebaseDriverRepository implements DriverRepo {
     });
   }
 
-
-
   @override
   Future<Driver> signUpWithEmail(Driver myUser, String password) async {
     try {
       // Add a prefix to the email address for driver accounts
       final driverEmail = 'driver_${myUser.email}';
-      
+
       UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: driverEmail,
         password: password,
@@ -40,10 +38,10 @@ class FirebaseDriverRepository implements DriverRepo {
         id: user.user!.uid,
         email: myUser.email, // Keep the original email in the Driver object
       );
-      
+
       // Store the driver data in Firestore with the original email
       await firestoreRepo.createDriver(myUser);
-      
+
       return myUser;
     } catch (e) {
       log(e.toString());
@@ -146,7 +144,9 @@ class FirebaseDriverRepository implements DriverRepo {
           email: user?.email ?? '',
           name: user?.displayName ?? '',
           number: user?.phoneNumber ?? '',
-          password: '');
+          password: '',
+          registrationProgress: 0,
+          role: 'Driver');
       return myUser;
     } catch (e) {
       log(e.toString());
@@ -290,6 +290,4 @@ class FirebaseDriverRepository implements DriverRepo {
       rethrow;
     }
   }
-  
-
 }

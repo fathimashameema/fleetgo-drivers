@@ -1,10 +1,12 @@
+import 'package:fleetgo_drivers/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/request_send.dart';
 import 'package:fleetgo_drivers/presentation/widgets/complete_profile_subheading.dart';
-import 'package:fleetgo_drivers/presentation/widgets/input_box.dart';
 import 'package:fleetgo_drivers/presentation/widgets/page_heading.dart';
 import 'package:fleetgo_drivers/presentation/widgets/upload_file_card.dart';
 import 'package:fleetgo_drivers/presentation/widgets/uploaded_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CompleteRegistration extends StatefulWidget {
   const CompleteRegistration({super.key});
@@ -19,14 +21,22 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
-          width: 180,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (ctx) => const RequestSend()));
-            },
-            child: const Text('Submit'),
-          )),
+        width: 180,
+        child: BlocBuilder<CheckBoxBloc, CheckBoxState>(
+          builder: (context, checkBoxState) {
+            return ElevatedButton(
+              onPressed: () {
+                context
+                    .read<AuthenticationBloc>()
+                    .add(const SetRegistrationProgress(4));
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (ctx) => const RequestSend()));
+              },
+              child: const Text('Submit'),
+            );
+          },
+        ),
+      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const PageHeading(
@@ -41,7 +51,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
             children: [
               CompleteProfileSubheading(
                   subHeading: 'Vehicle Registration Certificate(RC)'),
-              UploadedCard(),
+              // UploadSuccessCard(),
               CompleteProfileSubheading(subHeading: 'Insurance Certificate'),
               UploadFileCard(),
               CompleteProfileSubheading(

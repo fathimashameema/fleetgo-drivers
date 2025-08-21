@@ -9,6 +9,10 @@ abstract class CheckBoxState extends Equatable {
 
 final class CheckBoxInitial extends CheckBoxState {}
 
+final class CheckBoxLoading extends CheckBoxState {}
+final class CheckBoxFailed extends CheckBoxState {}
+
+
 final class SelectedRole extends CheckBoxState {
   final int selectedValue;
 

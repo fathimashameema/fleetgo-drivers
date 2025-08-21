@@ -19,3 +19,12 @@ class SetProfileComplete extends AuthenticationEvent {
 
   const SetProfileComplete(this.driver);
 }
+
+class SetRegistrationProgress extends AuthenticationEvent {
+  final int progress;
+
+  const SetRegistrationProgress(this.progress);
+
+  @override
+  List<Object> get props => [progress];
+}

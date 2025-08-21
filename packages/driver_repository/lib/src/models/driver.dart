@@ -9,6 +9,8 @@ class Driver extends Equatable {
   final String? profile;
   final String password;
   final bool isProfileComplete;
+  final int registrationProgress;
+  final String role;
 
   const Driver({
     required this.id,
@@ -18,16 +20,21 @@ class Driver extends Equatable {
     this.profile,
     required this.password,
     this.isProfileComplete = false,
+    required this.registrationProgress,
+    required this.role
   });
 
   static const emptyUser = Driver(
-      id: '',
-      email: '',
-      name: '',
-      number: '',
-      profile: '',
-      password: '',
-      isProfileComplete: false);
+    id: '',
+    email: '',
+    name: '',
+    number: '',
+    profile: '',
+    password: '',
+    isProfileComplete: false,
+    registrationProgress: 0,
+    role: 'Driver',
+  );
 
   Driver copyWith({
     String? id,
@@ -37,6 +44,8 @@ class Driver extends Equatable {
     String? profile,
     String? password,
     bool? isProfileComplete,
+    int? registrationProgress,
+    String? role,
   }) {
     return Driver(
       id: id ?? this.id,
@@ -46,6 +55,8 @@ class Driver extends Equatable {
       number: number ?? this.number,
       password: password ?? this.password,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
+      registrationProgress: registrationProgress ?? this.registrationProgress,
+      role: role??this.role,
     );
   }
 
@@ -61,19 +72,22 @@ class Driver extends Equatable {
       profile: profile,
       password: password,
       isProfileComplete: isProfileComplete,
+      registrationProgress: registrationProgress,
+      role : role,
     );
   }
 
   static Driver fromEntity(DriverEntity entity) {
     return Driver(
-      id: entity.id,
-      email: entity.email,
-      name: entity.name,
-      profile: entity.profile,
-      number: entity.number,
-      password: entity.password,
-      isProfileComplete: entity.isProfileComplete,
-    );
+        id: entity.id,
+        email: entity.email,
+        name: entity.name,
+        profile: entity.profile,
+        number: entity.number,
+        password: entity.password,
+        isProfileComplete: entity.isProfileComplete,
+        registrationProgress: entity.registrationProgress,
+        role:entity.role,);
   }
 
   @override
@@ -85,5 +99,7 @@ class Driver extends Equatable {
         profile,
         password,
         isProfileComplete,
+        registrationProgress,
+        role,
       ];
 }

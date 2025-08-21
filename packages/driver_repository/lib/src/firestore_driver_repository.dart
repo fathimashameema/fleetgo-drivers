@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_repository/driver_repository.dart';
@@ -11,6 +12,7 @@ class FirestoreDriverRepository extends FirestoreRepo {
   final FirebaseFirestore _firestoreInstance;
   final userCollection = FirebaseFirestore.instance.collection('driver');
   final otpCollection = FirebaseFirestore.instance.collection('otp');
+  final statusCollection = FirebaseFirestore.instance.collection('status');
 
   @override
   Future<void> setUserData(Driver user) async {
@@ -305,6 +307,55 @@ class FirestoreDriverRepository extends FirestoreRepo {
     } catch (e) {
       log('Error creating driver: $e');
       rethrow;
+    }
+  }
+
+  @override
+  Future<int> getRegistrationProgress(String uid) async {
+    try {
+      final snapshot = await userCollection.doc(uid).get();
+
+      final data = snapshot.data();
+      log('logging data');
+      log(data.toString());
+      return data?['registrationProgress'];
+    } catch (e) {
+      log(e.toString());
+      return 0;
+    }
+  }
+
+  @override
+  Future<void> setRegistrationProgress(String uid, int progress) async {
+    try {
+      await userCollection
+          .doc(uid)
+          .set({'registrationProgress': progress}, SetOptions(merge: true));
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> setRole(String uid, String role) async {
+    try {
+      await userCollection
+          .doc(uid)
+          .set({'role': role}, SetOptions(merge: true));
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String?> uploadFileToFirestore(File file, String folderName) async {
+    try {
+      
+    } catch (e) {
+      log("Upload error: $e");
+      return null;
     }
   }
 }

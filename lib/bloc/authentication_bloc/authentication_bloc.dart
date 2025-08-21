@@ -26,16 +26,40 @@ class AuthenticationBloc
       add(AuthenticationUserChanged(authUser));
     });
 
+    // on<AuthenticationUserChanged>((event, emit) async {
+    //   emit(const AuthenticationState.loading());
+    //   try {
+    //     if (event.driver != null) {
+    //       final isProfileComplete =
+    //           await firestoreRepo.isProfileComplete(event.driver!);
+    //       if (isProfileComplete) {
+    //         emit(AuthenticationState.authenticated(event.driver!));
+    //       } else {
+    //         emit(AuthenticationState.profileIncomplete(event.driver!));
+    //       }
+    //     } else {
+    //       emit(const AuthenticationState.unauthenticated());
+    //     }
+    //   } catch (e) {
+    //     emit(const AuthenticationState.unknown());
+    //     log(e.toString());
+    //     rethrow;
+    //   }
+    // });
+
     on<AuthenticationUserChanged>((event, emit) async {
       emit(const AuthenticationState.loading());
+
       try {
         if (event.driver != null) {
-          final isProfileComplete =
-              await firestoreRepo.isProfileComplete(event.driver!);
-          if (isProfileComplete) {
-            emit(AuthenticationState.authenticated(event.driver!));
+          final uid = event.driver!.uid;
+          final progress = await firestoreRepo.getRegistrationProgress(uid);
+
+          if (progress >= 4) {
+            emit(AuthenticationState.authenticated(event.driver!, progress));
           } else {
-            emit(AuthenticationState.profileIncomplete(event.driver!));
+            emit(
+                AuthenticationState.profileIncomplete(event.driver!, progress));
           }
         } else {
           emit(const AuthenticationState.unauthenticated());
@@ -44,6 +68,22 @@ class AuthenticationBloc
         emit(const AuthenticationState.unknown());
         log(e.toString());
         rethrow;
+      }
+    });
+
+    on<SetRegistrationProgress>((event, emit) async {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        await firestoreRepo.setRegistrationProgress(
+            currentUser.uid, event.progress);
+
+        // Re-emit updated state
+        if (event.progress >= 4) {
+          emit(AuthenticationState.authenticated(currentUser, event.progress));
+        } else {
+          emit(AuthenticationState.profileIncomplete(
+              currentUser, event.progress));
+        }
       }
     });
 

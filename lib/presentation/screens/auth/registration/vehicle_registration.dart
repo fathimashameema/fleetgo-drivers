@@ -1,5 +1,6 @@
+
+import 'package:fleetgo_drivers/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
-import 'package:fleetgo_drivers/presentation/screens/auth/registration/complete_profile.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/complete_registration.dart';
 import 'package:fleetgo_drivers/presentation/widgets/complete_profile_subheading.dart';
 import 'package:fleetgo_drivers/presentation/widgets/input_box.dart';
@@ -41,13 +42,22 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
           width: 180,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (ctx) => const CompleteRegistration()));
-            },
-            child: const Text('Continue'),
-          )),
+          child: BlocBuilder<CheckBoxBloc, CheckBoxState>(
+            builder: (context, checkBoxState) {
+             
+                  return ElevatedButton(
+                    onPressed: () {
+                     context
+                          .read<AuthenticationBloc>()
+                          .add(const SetRegistrationProgress(3));
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (ctx) => const CompleteRegistration()));
+                    },
+                    child: const Text('Continue'),
+                  );
+                },
+              ),
+            ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: PageHeading(

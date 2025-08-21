@@ -6,3 +6,5 @@ export 'src/driver_repo.dart';
 export 'src/firebase_driver_repository.dart';
 export 'src/firestore_driver_repository.dart';
 export 'src/firestore_repo.dart';
+export 'src/firebase_storage_repository.dart';
+export 'src/storage_repo.dart';

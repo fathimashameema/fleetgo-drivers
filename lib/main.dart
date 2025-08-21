@@ -1,5 +1,6 @@
 import 'package:driver_repository/driver_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fleetgo_drivers/firebase_options.dart';
 import 'package:fleetgo_drivers/my_app.dart';
 import 'package:fleetgo_drivers/simple_bloc_observer.dart';
 
@@ -21,12 +22,14 @@ void main(List<String> args) async {
             appId: "1:1097929083749:web:d646269fc7b87a6eca2f8c",
             measurementId: "G-7W87ZGVRH5"));
   } else {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
   }
   Bloc.observer = SimpleBlocObserver();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MyApp(
     driverRepository: FirebaseDriverRepository(),
     firestoreRepository: FirestoreDriverRepository(),
+    storageRepository: FirebaseStorageRepository(),
   ));
 }

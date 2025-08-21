@@ -1,4 +1,3 @@
-import 'package:fleetgo_drivers/presentation/screens/auth/login/login.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/add_profile.dart';
 import 'package:fleetgo_drivers/resources/images/images.dart';
 import 'package:flutter/material.dart';

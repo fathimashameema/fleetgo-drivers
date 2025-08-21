@@ -1,6 +1,7 @@
+import 'package:fleetgo_drivers/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/complete_profile.dart';
-import 'package:fleetgo_drivers/presentation/screens/auth/registration/vehicle_registration.dart';
+import 'package:fleetgo_drivers/presentation/widgets/circular_indicator.dart';
 import 'package:fleetgo_drivers/presentation/widgets/page_heading.dart';
 import 'package:fleetgo_drivers/presentation/widgets/role_card.dart';
 import 'package:fleetgo_drivers/resources/images/images.dart';
@@ -51,12 +52,22 @@ class DriverOrRenter extends StatelessWidget {
             ),
             SizedBox(
               width: 180,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (ctx) => const CompleteProfile()));
+              child: BlocBuilder<CheckBoxBloc, CheckBoxState>(
+                builder: (context, checkBoxState) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<AuthenticationBloc>()
+                          .add(const SetRegistrationProgress(1));
+
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (ctx) => const CompleteProfile()));
+                    },
+                    child: checkBoxState is CheckBoxLoading
+                        ? const CircularIndicator()
+                        : const Text('continue'),
+                  );
                 },
-                child: const Text('continue'),
               ),
             ),
           ],

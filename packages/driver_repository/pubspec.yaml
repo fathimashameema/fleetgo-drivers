@@ -24,14 +24,15 @@ dependencies:
   cloud_firestore: ^5.6.5
   mailer: ^6.4.1
   google_sign_in: ^6.3.0
-
-  # flutter_native_splash: ^2.4.4
-  # google_fonts: ^6.2.1
-  # flutter_svg: ^2.0.17
-  # font_awesome_flutter: ^10.8.0
-  # bloc: ^9.0.0
-  # flutter_bloc: ^9.1.0
-  # pinput: ^5.0.1
+  firebase_storage: ^12.4.10
+  flutter_native_splash: ^2.4.4
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  font_awesome_flutter: ^10.8.0
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
+  pinput: ^5.0.1
+  animated_check: ^1.0.5
 
 dev_dependencies:
   flutter_test:
