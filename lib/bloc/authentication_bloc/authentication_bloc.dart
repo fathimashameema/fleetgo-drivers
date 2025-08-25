@@ -14,13 +14,16 @@ class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final DriverRepo driverRepo;
   final FirestoreRepo firestoreRepo;
+  final User? user;
   late final StreamSubscription<User?> _userSubscription;
 
   AuthenticationBloc(
       {required DriverRepo driverResporitory,
-      required FirestoreRepo firestoreRepository})
+      required FirestoreRepo firestoreRepository,
+      required User? currentUser})
       : driverRepo = driverResporitory,
         firestoreRepo = firestoreRepository,
+        user = currentUser,
         super(const AuthenticationState.unknown()) {
     _userSubscription = driverRepo.userStatus.listen((authUser) {
       add(AuthenticationUserChanged(authUser));
@@ -72,7 +75,6 @@ class AuthenticationBloc
     });
 
     on<SetRegistrationProgress>((event, emit) async {
-      final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         await firestoreRepo.setRegistrationProgress(
             currentUser.uid, event.progress);

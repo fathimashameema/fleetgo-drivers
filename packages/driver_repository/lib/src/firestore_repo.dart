@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:driver_repository/driver_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -27,5 +25,7 @@ abstract class FirestoreRepo {
   Future<void> updatePassword(String newPassword, String userId);
   Future<String?> getUserId(String identifiers);
   Future<void> createDriver(Driver driver);
-  Future<String?> uploadFileToFirestore(File file, String folderName);
+  Future<Map<String, dynamic>?> getDataAndDocuments(String uid);
+  Future<void> setDataAndDocuments(String uid, String field, dynamic value);
+  Future<void> deleteDocument(String uid, String field);
 }

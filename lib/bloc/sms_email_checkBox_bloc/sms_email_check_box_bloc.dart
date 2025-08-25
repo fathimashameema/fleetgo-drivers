@@ -6,11 +6,7 @@ part 'sms_email_check_box_state.dart';
 
 class SmsEmailCheckBoxBloc
     extends Bloc<SmsEmailCheckBoxEvent, SmsEmailCheckBoxState> {
-  
-  SmsEmailCheckBoxBloc(
-      )
-      : 
-        super(SmsEmailCheckBoxState.initial()) {
+  SmsEmailCheckBoxBloc() : super(SmsEmailCheckBoxState.initial()) {
     on<SelectSmsEvent>((event, emit) {
       emit(const SmsEmailCheckBoxState(
         isSmsSelected: true,
@@ -26,7 +22,5 @@ class SmsEmailCheckBoxBloc
         selectedValue: 'email',
       ));
     });
-
-    
   }
 }

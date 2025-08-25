@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_repository/driver_repository.dart';
@@ -12,7 +11,6 @@ class FirestoreDriverRepository extends FirestoreRepo {
   final FirebaseFirestore _firestoreInstance;
   final userCollection = FirebaseFirestore.instance.collection('driver');
   final otpCollection = FirebaseFirestore.instance.collection('otp');
-  final statusCollection = FirebaseFirestore.instance.collection('status');
 
   @override
   Future<void> setUserData(Driver user) async {
@@ -350,12 +348,42 @@ class FirestoreDriverRepository extends FirestoreRepo {
   }
 
   @override
-  Future<String?> uploadFileToFirestore(File file, String folderName) async {
+  Future <Map<String, dynamic>?> getDataAndDocuments(String uid) async {
     try {
-      
+      final snapshot = await userCollection.doc(uid).get();
+
+      final data = snapshot.data();
+      log('logging data');
+      log(data.toString());
+      return data;
     } catch (e) {
-      log("Upload error: $e");
-      return null;
+      log('error loading fields ${e.toString()}');
+      return {};
+    }
+  }
+
+  @override
+  Future<void> setDataAndDocuments(String uid, String field, value) async {
+    try {
+      await userCollection
+          .doc(uid)
+          .set({field: value}, SetOptions(merge: true));
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteDocument(String uid, String field) async {
+    try {
+      await userCollection.doc(uid).update({
+        field: FieldValue.delete(),
+      });
+      log("Field '$field' deleted successfully from $uid");
+    } catch (e) {
+      log(e.toString());
+      rethrow;
     }
   }
 }

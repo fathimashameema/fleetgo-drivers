@@ -1,4 +1,5 @@
 import 'package:driver_repository/driver_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fleetgo_drivers/firebase_options.dart';
 import 'package:fleetgo_drivers/my_app.dart';
@@ -31,5 +32,6 @@ void main(List<String> args) async {
     driverRepository: FirebaseDriverRepository(),
     firestoreRepository: FirestoreDriverRepository(),
     storageRepository: FirebaseStorageRepository(),
+    currentUser: FirebaseAuth.instance.currentUser,
   ));
 }

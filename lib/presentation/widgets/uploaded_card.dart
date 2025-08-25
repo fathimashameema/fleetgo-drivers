@@ -102,8 +102,8 @@ class _UploadSuccessCardState extends State<UploadSuccessCard>
                           ),
                         ),
                         Positioned(
-                          top: -8,
-                          right: -8,
+                          top: -5,
+                          right: -5,
                           child: GestureDetector(
                             onTap: widget.onClose,
                             child: Container(

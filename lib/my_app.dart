@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fleetgo_drivers/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:fleetgo_drivers/bloc/store_documents_bloc/store_documents_bloc.dart';
 import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
@@ -29,10 +30,13 @@ class MyApp extends StatelessWidget {
   final DriverRepo driverRepository;
   final FirestoreRepo firestoreRepository;
   final FirebaseStorageRepository storageRepository;
+  final User? currentUser;
   const MyApp({
     super.key,
     required this.driverRepository,
-    required this.firestoreRepository, required this.storageRepository,
+    required this.firestoreRepository,
+    required this.storageRepository,
+    this.currentUser,
   });
 
   @override
@@ -42,7 +46,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => AuthenticationBloc(
               driverResporitory: driverRepository,
-              firestoreRepository: firestoreRepository),
+              firestoreRepository: firestoreRepository,
+              currentUser: currentUser),
         ),
         BlocProvider(
           create: (context) => SignInBloc(driverRepository: driverRepository),
@@ -79,7 +84,8 @@ class MyApp extends StatelessWidget {
           create: (context) => CheckBoxBloc(firestoreRepository),
         ),
         BlocProvider(
-          create: (context) => StoreDocumentsBloc(storageRepository),
+          create: (context) => StoreDocumentsBloc(
+              storageRepository, firestoreRepository, currentUser),
         ),
       ],
       child: MaterialApp(
