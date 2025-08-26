@@ -7,19 +7,28 @@ abstract class StoreDocumentsEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class UploadFile extends StoreDocumentsEvent {
+class UploadImage extends StoreDocumentsEvent {
   final File file;
   final String folder;
   final String fileName;
   final String field;
   final String fileField;
 
-  const UploadFile(
+  const UploadImage(
       {required this.file,
       required this.folder,
       required this.fileName,
       required this.field,
       required this.fileField});
+}
+
+class UploadData extends StoreDocumentsEvent {
+  final String field;
+  final String value;
+  const UploadData({
+    required this.field,
+    required this.value,
+  });
 }
 
 class SetDocument extends StoreDocumentsEvent {

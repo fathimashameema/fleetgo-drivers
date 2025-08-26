@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:fleetgo_drivers/bloc/authentication_bloc/authentication_bloc.dart';
@@ -6,7 +5,6 @@ import 'package:fleetgo_drivers/bloc/store_documents_bloc/store_documents_bloc.d
 import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
 import 'package:fleetgo_drivers/data/models/documents_state.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/vehicle_registration.dart';
-import 'package:fleetgo_drivers/presentation/widgets/circular_indicator.dart';
 import 'package:fleetgo_drivers/presentation/widgets/complete_profile_subheading.dart';
 import 'package:fleetgo_drivers/presentation/widgets/input_box.dart';
 import 'package:fleetgo_drivers/presentation/widgets/page_heading.dart';
@@ -40,6 +38,13 @@ class _CompleteProfileState extends State<CompleteProfile> {
     super.initState();
   }
 
+  void _clearExperience() {
+    experienceController.clear();
+    context.read<StoreDocumentsBloc>().add(
+          const SetDocument(field: 'experience', value: ''),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -50,27 +55,70 @@ class _CompleteProfileState extends State<CompleteProfile> {
       floatingActionButton: SizedBox(
           width: 180,
           child: BlocBuilder<CheckBoxBloc, CheckBoxState>(
-            builder: (context, checkBoxState) {
+              builder: (context, checkBoxState) {
+            return BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
+                builder: (context, docState) {
               return ElevatedButton(
                 onPressed: () {
+                  final addressProof = docState.documents['addressProof'];
+                  final licence = docState.documents['licence'];
+                  final pvc = docState.documents['pvc'];
+                  final experience = experienceController.text.trim();
+
+                  if (addressProof?.url == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Please upload Address Proof")),
+                    );
+                    return;
+                  }
+                  if (licence?.url == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please upload Licence")),
+                    );
+                    return;
+                  }
+                  if (pvc?.url == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              "Please upload Police Verification Certificate")),
+                    );
+                    return;
+                  }
+                  if (experience.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Please enter your experience")),
+                    );
+                    return;
+                  }
+
+                  // Save experience to Firestore
+                  context.read<StoreDocumentsBloc>().add(
+                        UploadData(field: 'experience', value: experience),
+                      );
+
+                  // Move to next page
                   context
                       .read<AuthenticationBloc>()
                       .add(const SetRegistrationProgress(2));
-                  checkBoxState is SelectedRole
-                      ? Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) {
-                          return VehicleRegistration(
-                            driverOrRenter: checkBoxState.selectedValue == 0
-                                ? 'Taxi'
-                                : 'Vehicle',
-                          );
-                        }))
-                      : null;
+                  if (checkBoxState is SelectedRole) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) {
+                        return VehicleRegistration(
+                          driverOrRenter: checkBoxState.selectedValue == 0
+                              ? 'Taxi'
+                              : 'Vehicle',
+                        );
+                      }),
+                    );
+                  }
                 },
                 child: const Text('Submit'),
               );
-            },
-          )),
+            });
+          })),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const PageHeading(
@@ -85,95 +133,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
             children: [
               const CompleteProfileSubheading(
                   subHeading: 'Address proof(Aadhaar,PAN / Voter id)'),
-              // BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
-              //   builder: (context, state) {
-              //     String? fileName;
-              //     Map<String, dynamic>? documents;
-
-              //     if (state is GetDocumentSuccess) {
-              //       log(state.documents.toString());
-              //       documents = state.documents;
-
-              //       if (state.documents != null &&
-              //           state.documents!.containsKey('addressProofFile')) {
-              //         fileName = state.documents!['addressProofFile'];
-              //       }
-              //     }
-              //     if (state is UploadLoading && state.field == 'addressProof') {
-              //       return const Padding(
-              //         padding: EdgeInsets.symmetric(vertical: 15),
-              //         child: SpinKitThreeInOut(
-              //           color: Colors.white,
-              //           size: 20.0,
-              //         ),
-              //       );
-              //     } else if (state is GetDocumentLoading) {
-              //       return const Padding(
-              //         padding: EdgeInsets.symmetric(vertical: 15.0),
-              //         child: SpinKitThreeInOut(
-              //           color: Colors.white,
-              //           size: 20.0,
-              //         ),
-              //       );
-              //     } else if (documents != null &&
-              //         documents.containsKey('addressProof')) {
-              //       return UploadSuccessCard(
-              //         imagePath: documents['addressProof'],
-              //         onClose: () {
-              //           log('on close clicked $fileName');
-
-              //           if (fileName != null) {
-              //             context.read<StoreDocumentsBloc>().add(
-              //                   DeleteDocument(
-              //                       folder: "Driver_Documents",
-              //                       field: 'addressProof',
-              //                       fileField: 'addressProofFile',
-              //                       fileName: fileName),
-              //                 );
-              //           }
-              //         },
-              //       );
-              //     } else if (state is UploadSuccess &&
-              //         state.downloadUrl.isNotEmpty &&
-              //         state.documents!.containsKey('addressProof')) {
-              //       return UploadSuccessCard(
-              //         imagePath: state.documents!['addressProof'],
-              //         onClose: () {
-              //           log('on close clicked $fileName');
-              //           if (fileName != null) {
-              //             context.read<StoreDocumentsBloc>().add(
-              //                   DeleteDocument(
-              //                       folder: "Driver_Documents",
-              //                       field: 'addressProof',
-              //                       fileField: 'addressProofFile',
-              //                       fileName:
-              //                           state.documents!['addressProofFile']),
-              //                 );
-              //           }
-              //         },
-              //       );
-              //     } else {
-              //       return UploadFileCard(
-              //         onTap: () async {
-              //           final File? pickedImage = await CustomBottomSheet()
-              //               .bottomSheet(context, screenHeight, screenWidth);
-
-              //           if (pickedImage != null) {
-              //             context.read<StoreDocumentsBloc>().add(
-              //                   UploadFile(
-              //                       file: pickedImage,
-              //                       folder: "Driver_Documents",
-              //                       fileName:
-              //                           "address_proof${DateTime.now().microsecondsSinceEpoch}.jpg",
-              //                       field: 'addressProof',
-              //                       fileField: 'addressProofFile'),
-              //                 );
-              //           }
-              //         },
-              //       );
-              //     }
-              //   },
-              // ),
               BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
                 builder: (context, state) {
                   final fieldState = state.documents['addressProof'];
@@ -186,7 +145,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                             .bottomSheet(context, screenHeight, screenWidth);
                         if (pickedImage != null) {
                           context.read<StoreDocumentsBloc>().add(
-                                UploadFile(
+                                UploadImage(
                                   file: pickedImage,
                                   folder: "Driver_Documents",
                                   fileName:
@@ -206,9 +165,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   } else if (fieldState.status == DocumentStatus.deleting) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 15),
-                      child: SpinKitThreeInOut(
-                          color: Colors.red,
-                          size: 20.0), // 🔴 red spinner for delete
+                      child: SpinKitThreeInOut(color: Colors.red, size: 20.0),
                     );
                   } else if (fieldState.status == DocumentStatus.success) {
                     return UploadSuccessCard(
@@ -229,95 +186,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   }
                 },
               ),
-
               const CompleteProfileSubheading(subHeading: 'Driver Licence'),
-              // BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
-              //   builder: (context, state) {
-              //     String? fileName;
-              //     Map<String, dynamic>? documents;
-
-              //     if (state is GetDocumentSuccess) {
-              //       log(state.documents.toString());
-              //       documents = state.documents;
-              //       if (state.documents != null &&
-              //           state.documents!.containsKey('licence')) {
-              //         fileName = state.documents!['licenceFile'];
-              //       }
-              //     }
-              //     if (state is UploadLoading && state.field == 'licence') {
-              //       return const Padding(
-              //         padding: EdgeInsets.symmetric(vertical: 15),
-              //         child: SpinKitThreeInOut(
-              //           color: Colors.white,
-              //           size: 20.0,
-              //         ),
-              //       );
-              //     } else if (state is GetDocumentLoading) {
-              //       return const Padding(
-              //         padding: EdgeInsets.symmetric(vertical: 15.0),
-              //         child: SpinKitThreeInOut(
-              //           color: Colors.white,
-              //           size: 20.0,
-              //         ),
-              //       );
-              //     } else if (documents != null &&
-              //         documents.containsKey('licence')) {
-              //       return UploadSuccessCard(
-              //         imagePath: documents['licence'],
-              //         onClose: () {
-              //           log('on close clicked $fileName');
-
-              //           if (fileName != null) {
-              //             context.read<StoreDocumentsBloc>().add(
-              //                   DeleteDocument(
-              //                       folder: "Driver_Documents",
-              //                       field: 'licence',
-              //                       fileField: 'licenceFile',
-              //                       fileName: fileName),
-              //                 );
-              //           }
-              //         },
-              //       );
-              //     } else if (state is UploadSuccess &&
-              //         state.downloadUrl.isNotEmpty &&
-              //         state.documents!.containsKey('licence')) {
-              //       return UploadSuccessCard(
-              //         imagePath: state.documents!['licence'],
-              //         onClose: () {
-              //           log('on close clicked $fileName');
-              //           if (fileName != null) {
-              //             context.read<StoreDocumentsBloc>().add(
-              //                   DeleteDocument(
-              //                       folder: "Driver_Documents",
-              //                       field: 'licence',
-              //                       fileField: 'licenceFile',
-              //                       fileName: state.documents!['licenceFile']),
-              //                 );
-              //           }
-              //         },
-              //       );
-              //     } else {
-              //       return UploadFileCard(
-              //         onTap: () async {
-              //           final File? pickedImage = await CustomBottomSheet()
-              //               .bottomSheet(context, screenHeight, screenWidth);
-
-              //           if (pickedImage != null) {
-              //             context.read<StoreDocumentsBloc>().add(
-              //                   UploadFile(
-              //                       file: pickedImage,
-              //                       folder: "Driver_Documents",
-              //                       fileName:
-              //                           "licence${DateTime.now().microsecondsSinceEpoch}.jpg",
-              //                       field: 'licence',
-              //                       fileField: 'licenceFile'),
-              //                 );
-              //           }
-              //         },
-              //       );
-              //     }
-              //   },
-              // ),
               BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
                 builder: (context, state) {
                   final fieldState = state.documents['licence'];
@@ -330,7 +199,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                             .bottomSheet(context, screenHeight, screenWidth);
                         if (pickedImage != null) {
                           context.read<StoreDocumentsBloc>().add(
-                                UploadFile(
+                                UploadImage(
                                   file: pickedImage,
                                   folder: "Driver_Documents",
                                   fileName:
@@ -350,9 +219,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   } else if (fieldState.status == DocumentStatus.deleting) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 15),
-                      child: SpinKitThreeInOut(
-                          color: Colors.red,
-                          size: 20.0), // 🔴 red spinner for delete
+                      child: SpinKitThreeInOut(color: Colors.red, size: 20.0),
                     );
                   } else if (fieldState.status == DocumentStatus.success) {
                     return UploadSuccessCard(
@@ -373,14 +240,68 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   }
                 },
               ),
-
               const CompleteProfileSubheading(
                   subHeading: 'Police Verification certificate.'),
-              const UploadFileCard(),
+              BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
+                builder: (context, state) {
+                  final fieldState = state.documents['pvc'];
+
+                  if (fieldState == null ||
+                      fieldState.status == DocumentStatus.initial) {
+                    return UploadFileCard(
+                      onTap: () async {
+                        final File? pickedImage = await CustomBottomSheet()
+                            .bottomSheet(context, screenHeight, screenWidth);
+                        if (pickedImage != null) {
+                          context.read<StoreDocumentsBloc>().add(
+                                UploadImage(
+                                  file: pickedImage,
+                                  folder: "Driver_Documents",
+                                  fileName:
+                                      "pvc${DateTime.now().microsecondsSinceEpoch}.jpg",
+                                  field: 'pvc',
+                                  fileField: 'pvcFile',
+                                ),
+                              );
+                        }
+                      },
+                    );
+                  } else if (fieldState.status == DocumentStatus.loading) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: SpinKitThreeInOut(color: Colors.white, size: 20.0),
+                    );
+                  } else if (fieldState.status == DocumentStatus.deleting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: SpinKitThreeInOut(color: Colors.red, size: 20.0),
+                    );
+                  } else if (fieldState.status == DocumentStatus.success) {
+                    return UploadSuccessCard(
+                      imagePath: fieldState.url!,
+                      onClose: () {
+                        context.read<StoreDocumentsBloc>().add(
+                              DeleteDocument(
+                                folder: "Driver_Documents",
+                                field: 'pvc',
+                                fileField: 'pvcFile',
+                                fileName: fieldState.fileName!,
+                              ),
+                            );
+                      },
+                    );
+                  } else {
+                    return const Text("Error uploading file");
+                  }
+                },
+              ),
               const CompleteProfileSubheading(
                   subHeading: 'Enter your driving experience(In year)'),
               InputBox(
-                  hintText: 'Experience', textController: experienceController)
+                  hintText: 'Experience', textController: experienceController),
+              SizedBox(
+                height: screenHeight * 0.1,
+              )
             ],
           ),
         ),

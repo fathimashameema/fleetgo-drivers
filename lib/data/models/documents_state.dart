@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum DocumentStatus { initial, loading, success, failure, deleting }
+enum DocumentStatus { initial, loading, success, failure, deleting, existing }
 
 class DocumentFieldState extends Equatable {
   final DocumentStatus status;

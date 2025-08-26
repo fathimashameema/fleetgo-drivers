@@ -98,7 +98,12 @@ class StoreDocumentsState extends Equatable {
   const StoreDocumentsState({required this.documents});
 
   factory StoreDocumentsState.initial() {
-    return const StoreDocumentsState(documents: {});
+    return const StoreDocumentsState(documents: {
+      "addressProof": DocumentFieldState(),
+      "licence": DocumentFieldState(),
+      "pvc": DocumentFieldState(),
+      "experience": DocumentFieldState(),
+    });
   }
 
   StoreDocumentsState copyWith({
