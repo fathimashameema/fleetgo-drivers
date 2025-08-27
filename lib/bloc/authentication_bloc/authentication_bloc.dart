@@ -75,17 +75,20 @@ class AuthenticationBloc
     });
 
     on<SetRegistrationProgress>((event, emit) async {
-      if (currentUser != null) {
+      final liveUser = FirebaseAuth.instance.currentUser;
+      if (liveUser != null) {
         await firestoreRepo.setRegistrationProgress(
-            currentUser.uid, event.progress);
+            liveUser.uid, event.progress);
 
         // Re-emit updated state
         if (event.progress >= 4) {
-          emit(AuthenticationState.authenticated(currentUser, event.progress));
+          emit(AuthenticationState.authenticated(liveUser, event.progress));
         } else {
           emit(AuthenticationState.profileIncomplete(
-              currentUser, event.progress));
+              liveUser, event.progress));
         }
+      } else {
+        emit(const AuthenticationState.unauthenticated());
       }
     });
 

@@ -56,6 +56,12 @@ class DriverOrRenter extends StatelessWidget {
                 builder: (context, checkBoxState) {
                   return ElevatedButton(
                     onPressed: () {
+                      // Persist selected role to Firestore on continue as a safeguard
+                      if (checkBoxState is SelectedRole) {
+                        context.read<CheckBoxBloc>().add(
+                            SelectRole(selectedValue: checkBoxState.selectedValue));
+                      }
+
                       context
                           .read<AuthenticationBloc>()
                           .add(const SetRegistrationProgress(1));

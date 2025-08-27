@@ -93,70 +93,73 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         darkTheme: TAppTheme.darkTheme,
         debugShowCheckedModeBanner: false,
-        home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-          builder: (context, state) {
-            // if (state.status == AuthenticationStatus.profileIncomplete) {
-            //   return const CompleteProfile();
-            // } else if (state.status == AuthenticationStatus.authenticated) {
-            //   return const HomePage();
-            // }  else {
-            //   return const Welcome();
-            // }
-
-            switch (state.status) {
-              case AuthenticationStatus.loading:
-                return Shimmer.fromColors(
-                    baseColor: TColors.darkgGey,
-                    highlightColor: TColors.grey,
-                    child: const DriverOrRenter());
-              case AuthenticationStatus.profileIncomplete:
-                return const DriverOrRenter();
-              case AuthenticationStatus.authenticated:
-                return const HomePage();
-              case AuthenticationStatus.unauthenticated:
-                return const Welcome();
-              default:
-                return const Welcome();
-            }
-          },
-        ),
         // home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         //   builder: (context, state) {
-        //     if (state.status == AuthenticationStatus.loading) {
-        //       return Shimmer.fromColors(
-        //         baseColor: TColors.darkgGey,
-        //         highlightColor: TColors.grey,
-        //         child: const DriverOrRenter(),
-        //       );
-        //     }
+        //     // if (state.status == AuthenticationStatus.profileIncomplete) {
+        //     //   return const CompleteProfile();
+        //     // } else if (state.status == AuthenticationStatus.authenticated) {
+        //     //   return const HomePage();
+        //     // }  else {
+        //     //   return const Welcome();
+        //     // }
 
-        //     if (state.status == AuthenticationStatus.unauthenticated ||
-        //         state.status == AuthenticationStatus.unknown) {
-        //       return const Welcome();
-        //     }
-
-        //     if (state.status == AuthenticationStatus.profileIncomplete ||
-        //         state.status == AuthenticationStatus.authenticated) {
-        //       final progress = state.registrationProgress;
-
-        //       if (progress == 0) {
+        //     switch (state.status) {
+        //       case AuthenticationStatus.loading:
+        //         return Shimmer.fromColors(
+        //             baseColor: TColors.darkgGey,
+        //             highlightColor: TColors.grey,
+        //             child: const DriverOrRenter());
+        //       case AuthenticationStatus.profileIncomplete:
         //         return const DriverOrRenter();
-        //       } else if (progress == 1) {
-        //         return const CompleteProfile(); // Next step
-        //       } else if (progress == 2) {
-        //         return const VehicleRegistration(
-        //           driverOrRenter: 'taxi',
-        //         ); // Last step
-        //       } else if (progress == 3) {
-        //         return const CompleteRegistration();
-        //       } else {
-        //         return const ReviewingRequest(); // Fully registered
-        //       }
+        //       case AuthenticationStatus.authenticated:
+        //         return const HomePage();
+        //       case AuthenticationStatus.unauthenticated:
+        //         return const Welcome();
+        //       default:
+        //         return Shimmer.fromColors(
+        //             baseColor: TColors.darkgGey,
+        //             highlightColor: TColors.grey,
+        //             child: const DriverOrRenter());
         //     }
-
-        //     return const Welcome(); // fallback
         //   },
         // ),
+        home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            if (state.status == AuthenticationStatus.loading) {
+              return Shimmer.fromColors(
+                baseColor: TColors.darkgGey,
+                highlightColor: TColors.grey,
+                child: const DriverOrRenter(),
+              );
+            }
+
+            if (state.status == AuthenticationStatus.unauthenticated ||
+                state.status == AuthenticationStatus.unknown) {
+              return const Welcome();
+            }
+
+            if (state.status == AuthenticationStatus.profileIncomplete ||
+                state.status == AuthenticationStatus.authenticated) {
+              final progress = state.registrationProgress;
+
+              if (progress == 0) {
+                return const DriverOrRenter();
+              } else if (progress == 1) {
+                return const CompleteProfile(); // Next step
+              } else if (progress == 2) {
+                return const VehicleRegistration(
+                  driverOrRenter: 'taxi',
+                ); // Last step
+              } else if (progress == 3) {
+                return const CompleteRegistration();
+              } else {
+                return const ReviewingRequest(); // Fully registered
+              }
+            }
+
+            return const Welcome(); // fallback
+          },
+        ),
       ),
     );
   }

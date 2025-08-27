@@ -34,19 +34,23 @@ class StoreDocumentsBloc
     emit(state.copyWith(documents: updated));
 
     try {
+      final liveUser = FirebaseAuth.instance.currentUser;
+      if (liveUser == null) {
+        throw Exception('No authenticated user');
+      }
       final url = await storageRepo.uploadFile(
         file: event.file,
-        folderName: '${event.folder}_${currentUser!.uid}',
+        folderName: '${event.folder}_${liveUser.uid}',
         fileName: event.fileName,
       );
 
       await firestoreRepository.setDataAndDocuments(
-          currentUser!.uid, event.field, url);
+          liveUser.uid, event.field, url);
       await firestoreRepository.setDataAndDocuments(
-          currentUser!.uid, event.fileField, event.fileName);
+          liveUser.uid, event.fileField, event.fileName);
 
       final documents =
-          await firestoreRepository.getDataAndDocuments(currentUser!.uid);
+          await firestoreRepository.getDataAndDocuments(liveUser.uid);
 
       final newMap = Map<String, DocumentFieldState>.from(updated);
       newMap[event.field] = DocumentFieldState(
@@ -78,8 +82,12 @@ class StoreDocumentsBloc
     emit(state.copyWith(documents: updated));
 
     try {
+      final liveUser = FirebaseAuth.instance.currentUser;
+      if (liveUser == null) {
+        throw Exception('No authenticated user');
+      }
       await firestoreRepository.setDataAndDocuments(
-        currentUser!.uid,
+        liveUser.uid,
         event.field,
         event.value,
       );
@@ -104,7 +112,8 @@ class StoreDocumentsBloc
 
   Future<void> _onSetDocument(
       SetDocument event, Emitter<StoreDocumentsState> emit) async {
-    if (currentUser == null) return;
+    final liveUser = FirebaseAuth.instance.currentUser;
+    if (liveUser == null) return;
 
     log("Setting document field: ${event.field} with value: ${event.value}");
 
@@ -118,14 +127,14 @@ class StoreDocumentsBloc
       if (event.value.toString().isEmpty) {
         // If clearing the field, delete from Firestore and set to initial
         log("Clearing field: ${event.field}");
-        await firestoreRepository.deleteDocument(currentUser!.uid, event.field);
+        await firestoreRepository.deleteDocument(liveUser.uid, event.field);
         updated[event.field] =
             const DocumentFieldState(status: DocumentStatus.initial);
       } else {
         // If setting a value, save to Firestore
         log("Setting field: ${event.field} to value: ${event.value}");
         await firestoreRepository.setDataAndDocuments(
-          currentUser!.uid,
+          liveUser.uid,
           event.field,
           event.value,
         );
@@ -151,7 +160,8 @@ class StoreDocumentsBloc
 
   Future<void> _onGetDocument(
       GetDocument event, Emitter<StoreDocumentsState> emit) async {
-    if (currentUser == null) return;
+    final liveUser = FirebaseAuth.instance.currentUser;
+    if (liveUser == null) return;
 
     // Mark everything loading
     final loadingMap = Map<String, DocumentFieldState>.from(state.documents);
@@ -163,13 +173,24 @@ class StoreDocumentsBloc
 
     try {
       final documentData =
-          await firestoreRepository.getDataAndDocuments(currentUser!.uid);
+          await firestoreRepository.getDataAndDocuments(liveUser.uid);
 
       log("Fetched document data: $documentData");
 
-      final newMap = Map<String, DocumentFieldState>.from(state.documents);
+      // Start with all tracked fields as initial
+      final newMap = <String, DocumentFieldState>{
+        'addressProof': const DocumentFieldState(status: DocumentStatus.initial),
+        'licence': const DocumentFieldState(status: DocumentStatus.initial),
+        'pvc': const DocumentFieldState(status: DocumentStatus.initial),
+        'experience': const DocumentFieldState(status: DocumentStatus.initial),
+      };
 
-      documentData?.forEach((key, value) {
+      if (documentData == null || documentData.isEmpty) {
+        emit(state.copyWith(documents: newMap));
+        return;
+      }
+
+      documentData.forEach((key, value) {
         if (key.endsWith("File")) return; // skip filename keys
 
         log("Processing field: $key with value: $value");
@@ -222,18 +243,20 @@ class StoreDocumentsBloc
       emit(state.copyWith(documents: newMap));
     } catch (e) {
       log("Error fetching documents: $e");
-      final errorMap = Map<String, DocumentFieldState>.from(state.documents);
-      errorMap.forEach((key, value) {
-        errorMap[key] =
-            const DocumentFieldState(status: DocumentStatus.initial);
-      });
-      emit(state.copyWith(documents: errorMap));
+      // Fallback to initial on error
+      emit(state.copyWith(documents: const {
+        'addressProof': DocumentFieldState(status: DocumentStatus.initial),
+        'licence': DocumentFieldState(status: DocumentStatus.initial),
+        'pvc': DocumentFieldState(status: DocumentStatus.initial),
+        'experience': DocumentFieldState(status: DocumentStatus.initial),
+      }));
     }
   }
 
   Future<void> _onDeleteDocument(
       DeleteDocument event, Emitter<StoreDocumentsState> emit) async {
-    if (currentUser == null) return;
+    final liveUser = FirebaseAuth.instance.currentUser;
+    if (liveUser == null) return;
 
     // mark document as deleting
     final updated = Map<String, DocumentFieldState>.from(state.documents);
@@ -244,13 +267,13 @@ class StoreDocumentsBloc
 
     try {
       await storageRepo.deleteFile(
-        folderName: '${event.folder}_${currentUser!.uid}',
+        folderName: '${event.folder}_${liveUser.uid}',
         fileName: event.fileName,
       );
 
-      await firestoreRepository.deleteDocument(currentUser!.uid, event.field);
+      await firestoreRepository.deleteDocument(liveUser.uid, event.field);
       await firestoreRepository.deleteDocument(
-          currentUser!.uid, event.fileField);
+          liveUser.uid, event.fileField);
 
       final refreshed = Map<String, DocumentFieldState>.from(state.documents);
       refreshed[event.field] =

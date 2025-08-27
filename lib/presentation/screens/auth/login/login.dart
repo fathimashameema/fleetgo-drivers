@@ -80,119 +80,92 @@ class _LoginState extends State<Login> {
           ),
           Align(
             alignment: Alignment.center,
-            child: SizedBox(
-                width: 180,
-                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                  builder: (context, authState) {
-                    return BlocConsumer<SignInBloc, SignInState>(
-                      listener: (context, state) {
-                        if (state is SignInFailure) {
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //     SnackBar(content: Text(state.message!)));
-                          showDialog(
-                              context: context,
-                              builder: (ctx) {
-                                return AlertDialog(
-                                  title: const Text('Failed to login!'),
-                                  content: Text(state.message!),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Ok'))
-                                  ],
-                                );
-                              });
-                        }
-                        if (state is SignInSuccess) {
-                          final authState =
-                              context.read<AuthenticationBloc>().state;
-
-                          switch (authState.status) {
-                            case AuthenticationStatus.profileIncomplete:
-                              final progress = authState.registrationProgress;
-
-                              if (progress == 0) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (ctx) => const DriverOrRenter()),
-                                );
-                              } else if (progress == 1) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (ctx) =>
-                                          const CompleteProfile()),
-                                );
-                              } else if (progress == 2) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (ctx) => const VehicleRegistration(
-                                        driverOrRenter: 'taxi'),
-                                  ),
-                                );
-                              } else if (progress == 3) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (ctx) =>
-                                          const CompleteRegistration()),
-                                );
-                              } else {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (ctx) =>
-                                          const ReviewingRequest()),
-                                );
-                              }
-                              break;
-
-                            case AuthenticationStatus.authenticated:
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (ctx) => const HomePage()),
-                              );
-                              break;
-
-                            case AuthenticationStatus.loading:
-                              Shimmer.fromColors(
-                                baseColor: TColors.darkgGey,
-                                highlightColor: TColors.grey,
-                                child: const DriverOrRenter(),
-                              );
-                              break;
-
-                            case AuthenticationStatus.unauthenticated:
-                            default:
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (ctx) => const Welcome()),
-                              );
-                              break;
-                          }
-                        }
-                      },
-                      // Navigator.of(context).push(MaterialPageRoute(
-                      //         builder: (ctx) => const HomePage()));
-                      //   }
-                      // },
-                      builder: (context, state) {
-                        return ElevatedButton(
-                            onPressed: () {
-                              if (!formKey.currentState!.validate()) {
-                                return;
-                              } else {
-                                context.read<SignInBloc>().add(SignInRequired(
-                                    identifierController.text,
-                                    passwordController.text));
-                              }
-                            },
-                            child: state is SignInProcess
-                                ? const CircularIndicator()
-                                : const Text('Login'));
-                      },
+            child: BlocListener<AuthenticationBloc, AuthenticationState>(
+              listener: (context, authState) {
+                switch (authState.status) {
+                  case AuthenticationStatus.profileIncomplete:
+                    final progress = authState.registrationProgress;
+                    if (progress == 0) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (ctx) => const DriverOrRenter()),
+                      );
+                    } else if (progress == 1) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (ctx) => const CompleteProfile()),
+                      );
+                    } else if (progress == 2) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (ctx) => const VehicleRegistration(
+                              driverOrRenter: 'taxi'),
+                        ),
+                      );
+                    } else if (progress == 3) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (ctx) => const CompleteRegistration()),
+                      );
+                    } else {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (ctx) => const ReviewingRequest()),
+                      );
+                    }
+                    break;
+                  case AuthenticationStatus.authenticated:
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (ctx) => const HomePage()),
                     );
+                    break;
+                  case AuthenticationStatus.loading:
+                    break;
+                  case AuthenticationStatus.unauthenticated:
+                  default:
+                    break;
+                }
+              },
+              child: SizedBox(
+                width: 180,
+                child: BlocConsumer<SignInBloc, SignInState>(
+                  listener: (context, state) {
+                    if (state is SignInFailure) {
+                      showDialog(
+                          context: context,
+                          builder: (ctx) {
+                            return AlertDialog(
+                              title: const Text('Failed to login!'),
+                              content: Text(state.message!),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Ok'))
+                              ],
+                            );
+                          });
+                    }
                   },
-                )),
+                  builder: (context, state) {
+                    return ElevatedButton(
+                        onPressed: () {
+                          if (!formKey.currentState!.validate()) {
+                            return;
+                          } else {
+                            context.read<SignInBloc>().add(SignInRequired(
+                                identifierController.text,
+                                passwordController.text));
+                          }
+                        },
+                        child: state is SignInProcess
+                            ? const CircularIndicator()
+                            : const Text('Login'));
+                  },
+                ),
+              ),
+            ),
           )
         ],
       )),

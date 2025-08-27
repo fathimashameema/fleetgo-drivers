@@ -17,9 +17,26 @@ class CheckBoxBloc extends Bloc<CheckBoxEvent, CheckBoxState> {
       emit(CheckBoxLoading());
       try {
         log('check box clicked');
-        final uid = FirebaseAuth.instance.currentUser!.uid;
+        User? user = FirebaseAuth.instance.currentUser;
+        // Wait briefly for auth state if not immediately available
+        if (user == null) {
+          try {
+            user = await FirebaseAuth.instance
+                .authStateChanges()
+                .firstWhere((u) => u != null)
+                .timeout(const Duration(seconds: 2));
+          } catch (_) {
+            // ignore timeout and handle as failure below
+          }
+        }
+
+        final uid = user?.uid;
+        if (uid == null) {
+          throw Exception('No authenticated user found');
+        }
+
         log(uid);
-        await firestoreRepository.setRole(
+        await _firestoreRepo.setRole(
             uid, event.selectedValue == 0 ? 'Driver' : 'Renter');
         emit(SelectedRole(event.selectedValue));
       } catch (e) {

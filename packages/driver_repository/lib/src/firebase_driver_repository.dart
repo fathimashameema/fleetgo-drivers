@@ -185,8 +185,10 @@ class FirebaseDriverRepository implements DriverRepo {
       log(message);
       if (RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
           .hasMatch(message)) {
+        // Firebase accounts are created with a 'driver_' email prefix
+        final driverEmail = 'driver_' + message;
         await _firebaseAuth.signInWithEmailAndPassword(
-          email: message,
+          email: driverEmail,
           password: password,
         );
         return null;
@@ -206,8 +208,10 @@ class FirebaseDriverRepository implements DriverRepo {
       log(message);
       if (RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
           .hasMatch(message)) {
+        // Firebase accounts are created with a 'driver_' email prefix
+        final driverEmail = 'driver_' + message;
         await _firebaseAuth.signInWithEmailAndPassword(
-          email: message,
+          email: driverEmail,
           password: password,
         );
         return null;
