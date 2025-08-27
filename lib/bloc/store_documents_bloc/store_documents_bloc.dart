@@ -69,7 +69,7 @@ class StoreDocumentsBloc
   Future<void> _onUploadData(
       UploadData event, Emitter<StoreDocumentsState> emit) async {
     log("Uploading data field: ${event.field} with value: ${event.value}");
-    
+
     // Set loading state for this field
     final updated = Map<String, DocumentFieldState>.from(state.documents)
       ..[event.field] =
@@ -119,7 +119,8 @@ class StoreDocumentsBloc
         // If clearing the field, delete from Firestore and set to initial
         log("Clearing field: ${event.field}");
         await firestoreRepository.deleteDocument(currentUser!.uid, event.field);
-        updated[event.field] = const DocumentFieldState(status: DocumentStatus.initial);
+        updated[event.field] =
+            const DocumentFieldState(status: DocumentStatus.initial);
       } else {
         // If setting a value, save to Firestore
         log("Setting field: ${event.field} to value: ${event.value}");
@@ -151,14 +152,15 @@ class StoreDocumentsBloc
   Future<void> _onGetDocument(
       GetDocument event, Emitter<StoreDocumentsState> emit) async {
     if (currentUser == null) return;
-    
-    // Set loading state immediately for all fields to show loading indicators
+
+    // Mark everything loading
     final loadingMap = Map<String, DocumentFieldState>.from(state.documents);
     loadingMap.forEach((key, value) {
-      loadingMap[key] = const DocumentFieldState(status: DocumentStatus.loading);
+      loadingMap[key] =
+          const DocumentFieldState(status: DocumentStatus.loading);
     });
     emit(state.copyWith(documents: loadingMap));
-    
+
     try {
       final documentData =
           await firestoreRepository.getDataAndDocuments(currentUser!.uid);
@@ -168,47 +170,62 @@ class StoreDocumentsBloc
       final newMap = Map<String, DocumentFieldState>.from(state.documents);
 
       documentData?.forEach((key, value) {
-        // Skip file name fields
-        if (key.endsWith("File")) return;
-        
+        if (key.endsWith("File")) return; // skip filename keys
+
         log("Processing field: $key with value: $value");
-        
-        // Handle different field types
+
         if (key == 'experience') {
-          // For experience field, just mark as success if value exists
           if (value != null && value.toString().isNotEmpty) {
             newMap[key] = DocumentFieldState(
               status: DocumentStatus.success,
               url: value.toString(),
             );
-            log("Set experience field to success with value: ${value.toString()}");
           } else {
-            newMap[key] = const DocumentFieldState(status: DocumentStatus.initial);
+            newMap[key] =
+                const DocumentFieldState(status: DocumentStatus.initial);
           }
-        } else if (key == 'addressProof' || key == 'licence' || key == 'pvc') {
-          // For file fields, check if both URL and fileName exist
+        } else if ([
+          'addressProof',
+          'licence',
+          'pvc',
+          'rc',
+          'insurance',
+          'permit'
+        ].contains(key)) {
           final fileName = documentData["${key}File"];
-          if (value != null && fileName != null && value.toString().isNotEmpty) {
+          if (value != null &&
+              fileName != null &&
+              value.toString().isNotEmpty) {
             newMap[key] = DocumentFieldState(
               status: DocumentStatus.success,
               url: value,
               fileName: fileName,
             );
-            log("Set $key field to success with URL: $value and fileName: $fileName");
           } else {
-            newMap[key] = const DocumentFieldState(status: DocumentStatus.initial);
+            newMap[key] =
+                const DocumentFieldState(status: DocumentStatus.initial);
+          }
+        } else {
+          // generic text fields (modelName, seating, baseFare, moreDetails, etc.)
+          if (value != null && value.toString().isNotEmpty) {
+            newMap[key] = DocumentFieldState(
+              status: DocumentStatus.success,
+              url: value.toString(),
+            );
+          } else {
+            newMap[key] =
+                const DocumentFieldState(status: DocumentStatus.initial);
           }
         }
       });
 
-      log("Final newMap: $newMap");
       emit(state.copyWith(documents: newMap));
     } catch (e) {
       log("Error fetching documents: $e");
-      // On error, set all fields back to initial state
       final errorMap = Map<String, DocumentFieldState>.from(state.documents);
       errorMap.forEach((key, value) {
-        errorMap[key] = const DocumentFieldState(status: DocumentStatus.initial);
+        errorMap[key] =
+            const DocumentFieldState(status: DocumentStatus.initial);
       });
       emit(state.copyWith(documents: errorMap));
     }

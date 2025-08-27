@@ -38,13 +38,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
     super.initState();
   }
 
-  void _clearExperience() {
-    experienceController.clear();
-    context.read<StoreDocumentsBloc>().add(
-          const SetDocument(field: 'experience', value: ''),
-        );
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;

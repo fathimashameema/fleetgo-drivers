@@ -38,6 +38,7 @@ class InputBox extends StatelessWidget {
       padding:
           padding ?? const EdgeInsets.symmetric(horizontal: 35.0, vertical: 10),
       child: TextFormField(
+        
         onChanged: onChanged,
         onFieldSubmitted: onSubmit,
         autovalidateMode: AutovalidateMode.onUnfocus,
