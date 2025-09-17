@@ -76,6 +76,7 @@ import 'package:fleetgo_drivers/bloc/store_documents_bloc/store_documents_bloc.d
 import 'package:fleetgo_drivers/data/models/documents_state.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/reviewing_request.dart';
 import 'package:fleetgo_drivers/presentation/widgets/custom_bottom_sheet.dart';
+import 'package:fleetgo_drivers/presentation/widgets/delete_image_alert.dart';
 import 'package:fleetgo_drivers/resources/colors/colors.dart';
 import 'package:fleetgo_drivers/resources/images/images.dart';
 import 'package:flutter/material.dart';
@@ -189,8 +190,8 @@ class AddProfile extends StatelessWidget {
                                     color: Colors.red, size: 20),
                               ),
                               onPressed: () async {
-                                final shouldDelete =
-                                    await deleteProfile(context);
+                                final shouldDelete = await DeleteImageAlert()
+                                    .deleteImage(context);
                                 if (shouldDelete == true) {
                                   context.read<StoreDocumentsBloc>().add(
                                         DeleteDocument(
@@ -231,26 +232,6 @@ class AddProfile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Future<bool?> deleteProfile(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete profile picture?'),
-        content: const Text('Are you sure you want to delete this photo?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
       ),
     );
   }

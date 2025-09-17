@@ -6,6 +6,7 @@ import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
 import 'package:fleetgo_drivers/data/models/documents_state.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/vehicle_registration.dart';
 import 'package:fleetgo_drivers/presentation/widgets/complete_profile_subheading.dart';
+import 'package:fleetgo_drivers/presentation/widgets/delete_image_alert.dart';
 import 'package:fleetgo_drivers/presentation/widgets/input_box.dart';
 import 'package:fleetgo_drivers/presentation/widgets/page_heading.dart';
 import 'package:fleetgo_drivers/presentation/widgets/upload_file_card.dart';
@@ -163,15 +164,19 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   } else if (fieldState.status == DocumentStatus.success) {
                     return UploadSuccessCard(
                       imagePath: fieldState.url!,
-                      onClose: () {
-                        context.read<StoreDocumentsBloc>().add(
-                              DeleteDocument(
-                                folder: "Driver_Documents",
-                                field: 'addressProof',
-                                fileField: 'addressProofFile',
-                                fileName: fieldState.fileName!,
-                              ),
-                            );
+                      onClose: () async {
+                        final shouldDelete =
+                            await DeleteImageAlert().deleteImage(context);
+                        if (shouldDelete == true) {
+                          context.read<StoreDocumentsBloc>().add(
+                                DeleteDocument(
+                                  folder: "Driver_Documents",
+                                  field: 'addressProof',
+                                  fileField: 'addressProofFile',
+                                  fileName: fieldState.fileName!,
+                                ),
+                              );
+                        }
                       },
                     );
                   } else {
@@ -217,15 +222,19 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   } else if (fieldState.status == DocumentStatus.success) {
                     return UploadSuccessCard(
                       imagePath: fieldState.url!,
-                      onClose: () {
-                        context.read<StoreDocumentsBloc>().add(
-                              DeleteDocument(
-                                folder: "Driver_Documents",
-                                field: 'licence',
-                                fileField: 'licenceFile',
-                                fileName: fieldState.fileName!,
-                              ),
-                            );
+                      onClose: () async {
+                        final shouldDelete =
+                            await DeleteImageAlert().deleteImage(context);
+                        if (shouldDelete == true) {
+                          context.read<StoreDocumentsBloc>().add(
+                                DeleteDocument(
+                                  folder: "Driver_Documents",
+                                  field: 'licence',
+                                  fileField: 'licenceFile',
+                                  fileName: fieldState.fileName!,
+                                ),
+                              );
+                        }
                       },
                     );
                   } else {
@@ -272,15 +281,19 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   } else if (fieldState.status == DocumentStatus.success) {
                     return UploadSuccessCard(
                       imagePath: fieldState.url!,
-                      onClose: () {
-                        context.read<StoreDocumentsBloc>().add(
-                              DeleteDocument(
-                                folder: "Driver_Documents",
-                                field: 'pvc',
-                                fileField: 'pvcFile',
-                                fileName: fieldState.fileName!,
-                              ),
-                            );
+                      onClose: () async {
+                        final shouldDelete =
+                            await DeleteImageAlert().deleteImage(context);
+                        if (shouldDelete == true) {
+                          context.read<StoreDocumentsBloc>().add(
+                                DeleteDocument(
+                                  folder: "Driver_Documents",
+                                  field: 'pvc',
+                                  fileField: 'pvcFile',
+                                  fileName: fieldState.fileName!,
+                                ),
+                              );
+                        }
                       },
                     );
                   } else {

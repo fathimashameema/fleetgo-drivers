@@ -177,7 +177,6 @@ class StoreDocumentsBloc
 
       log("Fetched document data: $documentData");
 
-      // Start with all tracked fields as initial
       final newMap = <String, DocumentFieldState>{
         'addressProof': const DocumentFieldState(status: DocumentStatus.initial),
         'licence': const DocumentFieldState(status: DocumentStatus.initial),

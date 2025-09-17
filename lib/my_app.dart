@@ -145,15 +145,15 @@ class MyApp extends StatelessWidget {
               if (progress == 0) {
                 return const DriverOrRenter();
               } else if (progress == 1) {
-                return const CompleteProfile(); // Next step
+                return const CompleteProfile(); 
               } else if (progress == 2) {
                 return const VehicleRegistration(
                   driverOrRenter: 'taxi',
-                ); // Last step
+                ); 
               } else if (progress == 3) {
                 return const CompleteRegistration();
               } else {
-                return const ReviewingRequest(); // Fully registered
+                return const ReviewingRequest(); 
               }
             }
 

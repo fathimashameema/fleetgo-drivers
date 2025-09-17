@@ -29,26 +29,6 @@ class AuthenticationBloc
       add(AuthenticationUserChanged(authUser));
     });
 
-    // on<AuthenticationUserChanged>((event, emit) async {
-    //   emit(const AuthenticationState.loading());
-    //   try {
-    //     if (event.driver != null) {
-    //       final isProfileComplete =
-    //           await firestoreRepo.isProfileComplete(event.driver!);
-    //       if (isProfileComplete) {
-    //         emit(AuthenticationState.authenticated(event.driver!));
-    //       } else {
-    //         emit(AuthenticationState.profileIncomplete(event.driver!));
-    //       }
-    //     } else {
-    //       emit(const AuthenticationState.unauthenticated());
-    //     }
-    //   } catch (e) {
-    //     emit(const AuthenticationState.unknown());
-    //     log(e.toString());
-    //     rethrow;
-    //   }
-    // });
 
     on<AuthenticationUserChanged>((event, emit) async {
       emit(const AuthenticationState.loading());
@@ -80,7 +60,6 @@ class AuthenticationBloc
         await firestoreRepo.setRegistrationProgress(
             liveUser.uid, event.progress);
 
-        // Re-emit updated state
         if (event.progress >= 4) {
           emit(AuthenticationState.authenticated(liveUser, event.progress));
         } else {
