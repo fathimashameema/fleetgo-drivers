@@ -348,7 +348,7 @@ class FirestoreDriverRepository extends FirestoreRepo {
   }
 
   @override
-  Future <Map<String, dynamic>?> getDataAndDocuments(String uid) async {
+  Future<Map<String, dynamic>?> getDataAndDocuments(String uid) async {
     try {
       final snapshot = await userCollection.doc(uid).get();
 
@@ -383,6 +383,32 @@ class FirestoreDriverRepository extends FirestoreRepo {
       log("Field '$field' deleted successfully from $uid");
     } catch (e) {
       log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> getRequestStatus(String uid) async {
+    try {
+      final snapshot = await userCollection.doc(uid).get();
+
+      final data = snapshot.data();
+      log('logging data');
+      log(data.toString());
+      return data?['requestStatus'];
+    } catch (e) {
+      log(e.toString());
+      return '';
+    }
+  }
+
+  @override
+  Future<void> deleteUser(String uid) async {
+    try {
+      await userCollection.doc(uid).delete();
+      log('Document deleted successfully from $userCollection/$uid');
+    } catch (e) {
+      log('Error deleting document: $e');
       rethrow;
     }
   }

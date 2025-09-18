@@ -14,32 +14,57 @@ class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final DriverRepo driverRepo;
   final FirestoreRepo firestoreRepo;
+  final StorageRepo storageRepo;
   final User? user;
   late final StreamSubscription<User?> _userSubscription;
 
   AuthenticationBloc(
       {required DriverRepo driverResporitory,
       required FirestoreRepo firestoreRepository,
+      required StorageRepo storageRepository,
       required User? currentUser})
       : driverRepo = driverResporitory,
         firestoreRepo = firestoreRepository,
+        storageRepo = storageRepository,
         user = currentUser,
         super(const AuthenticationState.unknown()) {
     _userSubscription = driverRepo.userStatus.listen((authUser) {
       add(AuthenticationUserChanged(authUser));
     });
 
-
     on<AuthenticationUserChanged>((event, emit) async {
       emit(const AuthenticationState.loading());
 
       try {
+        final liveUser = FirebaseAuth.instance.currentUser;
+
+        if (liveUser != null) {
+          try {
+            await liveUser.reload();
+            final reloadedUser = FirebaseAuth.instance.currentUser;
+
+            if (reloadedUser == null) {
+              emit(const AuthenticationState.unauthenticated());
+            } else {
+              // Proceed normally with auth flow
+            }
+          } catch (e) {
+            // Assume user is deleted and sign out
+            await FirebaseAuth.instance.signOut();
+            emit(const AuthenticationState.unauthenticated());
+          }
+        } else {
+          emit(const AuthenticationState.unauthenticated());
+        }
         if (event.driver != null) {
           final uid = event.driver!.uid;
           final progress = await firestoreRepo.getRegistrationProgress(uid);
 
           if (progress >= 4) {
-            emit(AuthenticationState.authenticated(event.driver!, progress));
+            final requestStatus = await firestoreRepo.getRequestStatus(uid);
+
+            emit(AuthenticationState.authenticated(
+                event.driver!, progress, requestStatus));
           } else {
             emit(
                 AuthenticationState.profileIncomplete(event.driver!, progress));
@@ -61,10 +86,13 @@ class AuthenticationBloc
             liveUser.uid, event.progress);
 
         if (event.progress >= 4) {
-          emit(AuthenticationState.authenticated(liveUser, event.progress));
+          final requestStatus =
+              await firestoreRepo.getRequestStatus(liveUser.uid);
+
+          emit(AuthenticationState.authenticated(
+              liveUser, event.progress, requestStatus));
         } else {
-          emit(AuthenticationState.profileIncomplete(
-              liveUser, event.progress));
+          emit(AuthenticationState.profileIncomplete(liveUser, event.progress));
         }
       } else {
         emit(const AuthenticationState.unauthenticated());
@@ -74,6 +102,47 @@ class AuthenticationBloc
     on<SetProfileComplete>((event, emit) async {
       await firestoreRepo.setProfileComplete(event.driver!);
     });
+
+    on<DeleteUser>((event, emit) async {
+      emit(const AuthenticationState.loading());
+
+      try {
+        final liveUser = FirebaseAuth.instance.currentUser;
+
+        if (liveUser != null) {
+          final uid = liveUser.uid;
+
+          await firestoreRepo.deleteUser(uid);
+          await storageRepo.deleteUserDocument('Driver_Documents_$uid');
+          await driverRepo.deleteFirebaseUser(uid);
+          await FirebaseAuth.instance.signOut();
+
+          emit(const AuthenticationState.unauthenticated());
+        } else {
+          emit(const AuthenticationState.unauthenticated());
+        }
+      } catch (e) {
+        log('Error during user deletion: $e');
+        emit(const AuthenticationState.unknown());
+      }
+    });
+  }
+  Future<void> _deleteUser(User user) async {
+    final String uid = user.uid;
+
+    try {
+      await firestoreRepo.deleteUser(uid);
+
+      await storageRepo.deleteUserDocument('Driver_Documents_$uid');
+
+      await driverRepo.deleteFirebaseUser(uid);
+      await FirebaseAuth.instance.signOut();
+
+      log('User deleted successfully.');
+    } catch (e) {
+      log('Error deleting user: $e');
+      rethrow;
+    }
   }
 
   @override

@@ -22,4 +22,6 @@ abstract class StorageRepo {
     required String folderName,
     required String fileName,
   });
+
+  Future<void> deleteUserDocument(String floder);
 }

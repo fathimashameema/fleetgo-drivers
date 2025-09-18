@@ -257,7 +257,6 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
                   return;
                 }
 
-                // 🚨 Check if a vehicle is selected
                 if (checkBoxState is! SelectedVehicle) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Please select a vehicle")),

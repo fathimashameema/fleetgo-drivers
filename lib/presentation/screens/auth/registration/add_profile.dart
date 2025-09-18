@@ -1,76 +1,4 @@
-// import 'package:fleetgo_drivers/presentation/screens/auth/registration/reviewing_request.dart';
-// import 'package:fleetgo_drivers/resources/colors/colors.dart';
-// import 'package:fleetgo_drivers/resources/images/images.dart';
-// import 'package:flutter/material.dart';
 
-// class AddProfile extends StatelessWidget {
-//   const AddProfile({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     double screenWidth = MediaQuery.of(context).size.width;
-
-//     return Scaffold(
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             Align(
-//                 alignment: Alignment.topRight,
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(25.0),
-//                   child: Text(
-//                     'Skip',
-//                     style: Theme.of(context).textTheme.bodySmall,
-//                   ),
-//                 )),
-//             Expanded(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   const Spacer(),
-//                   Column(
-//                     children: [
-//                       Text(
-//                         'Add profile picture',
-//                         style: Theme.of(context).textTheme.headlineMedium,
-//                       ),
-//                       Text(
-//                         'Show your identity to customers',
-//                         style: Theme.of(context).textTheme.titleMedium,
-//                       )
-//                     ],
-//                   ),
-//                   const Spacer(),
-//                   GestureDetector(
-//                     onTap: (){
-
-//                     },
-//                     child: CircleAvatar(
-//                         radius: 92,
-//                         backgroundColor: TColors.grey,
-//                         child: Image.asset(TImages.addProfile)),
-//                   ),
-//                   const Spacer(),
-//                   SizedBox(
-//                     width: screenWidth * 0.3,
-//                     child: ElevatedButton(
-//                         onPressed: () {
-//                           Navigator.of(context).pushReplacement(
-//                               MaterialPageRoute(
-//                                   builder: (ctx) => const ReviewingRequest()));
-//                         },
-//                         child: const Text('Add')),
-//                   ),
-//                   const Spacer()
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'dart:io';
 import 'package:fleetgo_drivers/bloc/store_documents_bloc/store_documents_bloc.dart';
 import 'package:fleetgo_drivers/data/models/documents_state.dart';
@@ -99,9 +27,14 @@ class AddProfile extends StatelessWidget {
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.all(25.0),
-                child: Text(
-                  'Skip',
-                  style: Theme.of(context).textTheme.bodySmall,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>const ReviewingRequest()));
+                  },
+                  child: Text(
+                    'Skip',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
               ),
             ),
@@ -123,15 +56,12 @@ class AddProfile extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-
-                  // 👇 BlocBuilder to handle profile pic state
                   BlocBuilder<StoreDocumentsBloc, StoreDocumentsState>(
                     builder: (context, state) {
-                      final fieldState = state.documents['profilePic'];
+                      final fieldState = state.documents['profile'];
 
                       if (fieldState == null ||
                           fieldState.status == DocumentStatus.initial) {
-                        // Initial state → show default avatar
                         return GestureDetector(
                           onTap: () async {
                             final File? pickedImage =
@@ -144,10 +74,10 @@ class AddProfile extends StatelessWidget {
                               context.read<StoreDocumentsBloc>().add(
                                     UploadImage(
                                       file: pickedImage,
-                                      folder: "Driver_Profile",
+                                      folder: "Driver_Documents",
                                       fileName:
                                           "profile_${DateTime.now().microsecondsSinceEpoch}.jpg",
-                                      field: 'profilePic',
+                                      field: 'profile',
                                       fileField: 'profileFile',
                                     ),
                                   );
@@ -167,14 +97,12 @@ class AddProfile extends StatelessWidget {
                               color: TColors.headingTexts, size: 30.0),
                         );
                       } else if (fieldState.status == DocumentStatus.deleting) {
-                        // 🔥 Deleting
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child:
                               SpinKitThreeInOut(color: Colors.red, size: 30.0),
                         );
                       } else if (fieldState.status == DocumentStatus.success) {
-                        // ✅ Show uploaded profile image
                         return Stack(
                           alignment: Alignment.topRight,
                           children: [
@@ -195,8 +123,8 @@ class AddProfile extends StatelessWidget {
                                 if (shouldDelete == true) {
                                   context.read<StoreDocumentsBloc>().add(
                                         DeleteDocument(
-                                          folder: "Driver_Profile",
-                                          field: 'profilePic',
+                                          folder: "Driver_Documents",
+                                          field: 'profile',
                                           fileField: 'profileFile',
                                           fileName: fieldState.fileName!,
                                         ),
@@ -211,7 +139,6 @@ class AddProfile extends StatelessWidget {
                       }
                     },
                   ),
-
                   const Spacer(),
                   SizedBox(
                     width: screenWidth * 0.3,

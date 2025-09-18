@@ -16,4 +16,5 @@ abstract class DriverRepo {
   Future<void> resetPassword(String email);
   Future<bool> verifySmsCodeForReset(String smsCode);
   Future<void> updatePassword(String userId, String newPassword);
+  Future<void> deleteFirebaseUser(String uid);
 }

@@ -67,6 +67,9 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                   return;
                 }
 
+                context.read<StoreDocumentsBloc>().add(
+                      const UploadData(field: 'requestStatus', value: 'send'),
+                    );
                 context
                     .read<AuthenticationBloc>()
                     .add(const SetRegistrationProgress(4));

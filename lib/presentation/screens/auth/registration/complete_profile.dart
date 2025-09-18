@@ -88,12 +88,10 @@ class _CompleteProfileState extends State<CompleteProfile> {
                     return;
                   }
 
-                  // Save experience to Firestore
                   context.read<StoreDocumentsBloc>().add(
                         UploadData(field: 'experience', value: experience),
                       );
 
-                  // Move to next page
                   context
                       .read<AuthenticationBloc>()
                       .add(const SetRegistrationProgress(2));

@@ -28,4 +28,6 @@ abstract class FirestoreRepo {
   Future<Map<String, dynamic>?> getDataAndDocuments(String uid);
   Future<void> setDataAndDocuments(String uid, String field, dynamic value);
   Future<void> deleteDocument(String uid, String field);
+  Future<String> getRequestStatus(String uid);
+  Future<void> deleteUser(String uid);
 }

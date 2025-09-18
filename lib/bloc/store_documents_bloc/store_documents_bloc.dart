@@ -74,7 +74,6 @@ class StoreDocumentsBloc
       UploadData event, Emitter<StoreDocumentsState> emit) async {
     log("Uploading data field: ${event.field} with value: ${event.value}");
 
-    // Set loading state for this field
     final updated = Map<String, DocumentFieldState>.from(state.documents)
       ..[event.field] =
           const DocumentFieldState(status: DocumentStatus.loading);
@@ -117,7 +116,6 @@ class StoreDocumentsBloc
 
     log("Setting document field: ${event.field} with value: ${event.value}");
 
-    // Set loading state for this field
     final updated = Map<String, DocumentFieldState>.from(state.documents);
     updated[event.field] =
         const DocumentFieldState(status: DocumentStatus.loading);
@@ -125,13 +123,11 @@ class StoreDocumentsBloc
 
     try {
       if (event.value.toString().isEmpty) {
-        // If clearing the field, delete from Firestore and set to initial
         log("Clearing field: ${event.field}");
         await firestoreRepository.deleteDocument(liveUser.uid, event.field);
         updated[event.field] =
             const DocumentFieldState(status: DocumentStatus.initial);
       } else {
-        // If setting a value, save to Firestore
         log("Setting field: ${event.field} to value: ${event.value}");
         await firestoreRepository.setDataAndDocuments(
           liveUser.uid,

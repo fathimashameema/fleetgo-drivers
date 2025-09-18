@@ -186,7 +186,7 @@ class FirebaseDriverRepository implements DriverRepo {
       if (RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
           .hasMatch(message)) {
         // Firebase accounts are created with a 'driver_' email prefix
-        final driverEmail = 'driver_' + message;
+        final driverEmail = 'driver_$message';
         await _firebaseAuth.signInWithEmailAndPassword(
           email: driverEmail,
           password: password,
@@ -209,7 +209,7 @@ class FirebaseDriverRepository implements DriverRepo {
       if (RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
           .hasMatch(message)) {
         // Firebase accounts are created with a 'driver_' email prefix
-        final driverEmail = 'driver_' + message;
+        final driverEmail = 'driver_$message';
         await _firebaseAuth.signInWithEmailAndPassword(
           email: driverEmail,
           password: password,
@@ -284,14 +284,67 @@ class FirebaseDriverRepository implements DriverRepo {
         throw Exception('Cannot change password for another user');
       }
 
-      // Update password in Firebase
       await user.updatePassword(newPassword);
 
-      // Update password in Firestore
       await firestoreRepo.updatePassword(newPassword, userId);
     } catch (e) {
       log('Password update error: ${e.toString()}');
       rethrow;
     }
+  }
+
+  @override
+  Future<void> deleteFirebaseUser(String uid) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      log('No user is currently signed in.');
+      return;
+    }
+
+    try {
+      await user.delete();
+      log('User deleted successfully.');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        log('Reauthentication required before deletion.');
+
+        final providerId = user.providerData.isNotEmpty
+            ? user.providerData.first.providerId
+            : null;
+
+        if (providerId == 'password') {
+          // For email/password user, throw an exception or ask user to sign out & re-login manually
+          throw Exception(
+              'Please sign out and sign in again using your email and password to delete your account.');
+        } else if (providerId == 'google.com') {
+          // Reauthenticate via Google Sign-In flow
+          final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+          if (googleUser != null) {
+            final googleAuth = await googleUser.authentication;
+            final credential = GoogleAuthProvider.credential(
+              accessToken: googleAuth.accessToken,
+              idToken: googleAuth.idToken,
+            );
+
+            await user.reauthenticateWithCredential(credential);
+            await user.delete();
+
+            log('Google user deleted successfully after reauthentication.');
+          } else {
+            throw Exception('Google sign-in canceled by user.');
+          }
+        } else {
+          throw Exception(
+              'Unsupported provider. Please sign in again to delete account.');
+        }
+      } else {
+        rethrow;
+      }
+    }
+
+    // Ensure sign out after deletion
+    await FirebaseAuth.instance.signOut();
   }
 }

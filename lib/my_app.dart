@@ -14,11 +14,11 @@ import 'package:fleetgo_drivers/presentation/screens/auth/registration/complete_
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/complete_registration.dart';
 
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/driver_or_renter.dart';
-import 'package:fleetgo_drivers/presentation/screens/auth/registration/reviewing_request.dart';
+import 'package:fleetgo_drivers/presentation/screens/auth/registration/request_rejected.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/vehicle_registration.dart';
 
 import 'package:fleetgo_drivers/presentation/screens/auth/welcome.dart';
-import 'package:fleetgo_drivers/presentation/screens/home/home_page.dart';
+import 'package:fleetgo_drivers/presentation/screens/home/bottom_nav_bar.dart';
 import 'package:fleetgo_drivers/resources/colors/colors.dart';
 import 'package:fleetgo_drivers/resources/themes/theme.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => AuthenticationBloc(
+              storageRepository: storageRepository,
               driverResporitory: driverRepository,
               firestoreRepository: firestoreRepository,
               currentUser: currentUser),
@@ -93,36 +94,6 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         darkTheme: TAppTheme.darkTheme,
         debugShowCheckedModeBanner: false,
-        // home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-        //   builder: (context, state) {
-        //     // if (state.status == AuthenticationStatus.profileIncomplete) {
-        //     //   return const CompleteProfile();
-        //     // } else if (state.status == AuthenticationStatus.authenticated) {
-        //     //   return const HomePage();
-        //     // }  else {
-        //     //   return const Welcome();
-        //     // }
-
-        //     switch (state.status) {
-        //       case AuthenticationStatus.loading:
-        //         return Shimmer.fromColors(
-        //             baseColor: TColors.darkgGey,
-        //             highlightColor: TColors.grey,
-        //             child: const DriverOrRenter());
-        //       case AuthenticationStatus.profileIncomplete:
-        //         return const DriverOrRenter();
-        //       case AuthenticationStatus.authenticated:
-        //         return const HomePage();
-        //       case AuthenticationStatus.unauthenticated:
-        //         return const Welcome();
-        //       default:
-        //         return Shimmer.fromColors(
-        //             baseColor: TColors.darkgGey,
-        //             highlightColor: TColors.grey,
-        //             child: const DriverOrRenter());
-        //     }
-        //   },
-        // ),
         home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
             if (state.status == AuthenticationStatus.loading) {
@@ -141,23 +112,31 @@ class MyApp extends StatelessWidget {
             if (state.status == AuthenticationStatus.profileIncomplete ||
                 state.status == AuthenticationStatus.authenticated) {
               final progress = state.registrationProgress;
-
+              final status = state.requestStatus;
               if (progress == 0) {
                 return const DriverOrRenter();
               } else if (progress == 1) {
-                return const CompleteProfile(); 
+                return const CompleteProfile();
               } else if (progress == 2) {
                 return const VehicleRegistration(
                   driverOrRenter: 'taxi',
-                ); 
+                );
               } else if (progress == 3) {
                 return const CompleteRegistration();
               } else {
-                return const ReviewingRequest(); 
+                if (status == 'send') {
+                  // return const RequestRejected();
+                  return const BottomNavBar();
+                  // return const ReviewingRequest();
+                } else if (status == 'rejected') {
+                  return const RequestRejected();
+                } else {
+                  const BottomNavBar();
+                }
               }
             }
 
-            return const Welcome(); // fallback
+            return const Welcome();
           },
         ),
       ),

@@ -6,7 +6,6 @@ import 'package:fleetgo_drivers/presentation/screens/auth/registration/complete_
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/driver_or_renter.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/reviewing_request.dart';
 import 'package:fleetgo_drivers/presentation/screens/auth/registration/vehicle_registration.dart';
-import 'package:fleetgo_drivers/presentation/screens/auth/welcome.dart';
 import 'package:fleetgo_drivers/presentation/screens/home/home_page.dart';
 import 'package:fleetgo_drivers/presentation/widgets/circular_indicator.dart';
 import 'package:fleetgo_drivers/presentation/widgets/login_form.dart';
@@ -15,7 +14,6 @@ import 'package:fleetgo_drivers/resources/colors/colors.dart';
 import 'package:fleetgo_drivers/resources/icons/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

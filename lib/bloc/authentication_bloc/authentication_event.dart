@@ -28,3 +28,7 @@ class SetRegistrationProgress extends AuthenticationEvent {
   @override
   List<Object> get props => [progress];
 }
+
+class DeleteUser extends AuthenticationEvent {
+  const DeleteUser();
+}

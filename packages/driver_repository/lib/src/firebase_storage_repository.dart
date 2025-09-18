@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:driver_repository/src/storage_repo.dart';
@@ -51,5 +52,23 @@ class FirebaseStorageRepository extends StorageRepo {
     final ref = _storageInstance.ref().child('$folderName/$fileName');
     await ref.putFile(newFile, SettableMetadata(contentType: 'image/png'));
     return await ref.getDownloadURL();
+  }
+
+  @override
+  Future<void> deleteUserDocument(String folder) async {
+    try {
+      final ListResult listResult =
+          await _storageInstance.ref(folder).listAll();
+
+      for (var item in listResult.items) {
+        await item.delete();
+        log('Deleted file: ${item.fullPath}');
+      }
+
+      log('All files deleted successfully in folder: $folder');
+    } catch (e) {
+      log('Error deleting folder: $e');
+      rethrow;
+    }
   }
 }
