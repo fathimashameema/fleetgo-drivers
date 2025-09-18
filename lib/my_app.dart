@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fleetgo_drivers/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:fleetgo_drivers/bloc/navigation_bloc/navigation_bloc.dart';
 import 'package:fleetgo_drivers/bloc/store_documents_bloc/store_documents_bloc.dart';
 import 'package:fleetgo_drivers/bloc/check_box_bloc/check_box_bloc.dart';
 import 'package:fleetgo_drivers/bloc/email_verification_bloc/email_verification_bloc.dart';
@@ -87,6 +88,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => StoreDocumentsBloc(
               storageRepository, firestoreRepository, currentUser),
+        ),
+        BlocProvider(
+          create: (context) => NavigationBloc(),
         ),
       ],
       child: MaterialApp(

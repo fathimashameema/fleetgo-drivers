@@ -5,7 +5,7 @@ abstract class FirestoreRepo {
   Future<void> setUserData(Driver user);
   Future<bool> isProfileComplete(User driver);
   Future<void> setRole(String uid, String role);
-  Future<Driver> getUser(String userId);
+  Future<Driver?> getUser(String userId);
   Future<void> setRegistrationProgress(String uid, int progress);
   Future<int> getRegistrationProgress(String uid);
   Future<void> setProfileComplete(Driver user);

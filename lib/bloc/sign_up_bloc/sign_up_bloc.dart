@@ -50,7 +50,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(SignUpProcess());
       try {
         final user = await _driverRepository.signInWithGoogle();
-        await _firestoreRepo.setUserData(user);
+        // setUserData is now handled in the repository for new users only
         emit(SignUpSuccess());
       } catch (e) {
         log(e.toString());

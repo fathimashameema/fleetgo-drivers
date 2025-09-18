@@ -139,15 +139,34 @@ class FirebaseDriverRepository implements DriverRepo {
               idToken: googleAuth?.idToken,
               accessToken: googleAuth?.accessToken));
       final user = cred.user;
-      final Driver myUser = Driver(
-          id: user?.uid ?? '',
-          email: user?.email ?? '',
-          name: user?.displayName ?? '',
-          number: user?.phoneNumber ?? '',
-          password: '',
-          registrationProgress: 0,
-          role: 'Driver');
-      return myUser;
+      
+      if (user == null) {
+        throw Exception('Google sign-in failed: No user returned');
+      }
+      
+      // Check if user already exists in Firestore
+      final existingUser = await firestoreRepo.getUser(user.uid);
+      
+      if (existingUser != null) {
+        // User exists, return existing user data
+        log('Existing user found, returning existing data');
+        return existingUser;
+      } else {
+        // New user, create with default values and store in Firestore
+        log('New user, creating with default values');
+        final Driver myUser = Driver(
+            id: user.uid,
+            email: user.email ?? '',
+            name: user.displayName ?? '',
+            number: user.phoneNumber ?? '',
+            password: '',
+            registrationProgress: 0,
+            role: 'Driver');
+        
+        // Store the new user data in Firestore
+        await firestoreRepo.setUserData(myUser);
+        return myUser;
+      }
     } catch (e) {
       log(e.toString());
       rethrow;

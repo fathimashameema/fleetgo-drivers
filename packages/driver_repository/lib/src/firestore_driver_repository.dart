@@ -34,13 +34,16 @@ class FirestoreDriverRepository extends FirestoreRepo {
   }
 
   @override
-  Future<Driver> getUser(String userId) async {
+  Future<Driver?> getUser(String userId) async {
     try {
-      return await userCollection.doc(userId).get().then((value) =>
-          Driver.fromEntity(DriverEntity.fromDocument(value.data()!)));
+      final doc = await userCollection.doc(userId).get();
+      if (doc.exists && doc.data() != null) {
+        return Driver.fromEntity(DriverEntity.fromDocument(doc.data()!));
+      }
+      return null;
     } catch (e) {
       log(e.toString());
-      rethrow;
+      return null;
     }
   }
 
