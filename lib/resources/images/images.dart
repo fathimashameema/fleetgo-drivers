@@ -14,4 +14,5 @@ class TImages {
   static String simpleCheckMark = 'assets/images/auth/simple_Checkmark.png';
   static String addProfile = 'assets/images/auth/Add Male User.png';
   static String requestRejected = 'assets/images/auth/request_rejected.png';
+  static String defaultProfileDriver = 'assets/images/screens/Driver.png';
 }

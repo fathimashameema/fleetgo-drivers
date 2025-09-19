@@ -16,8 +16,6 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
-
   final _pages = const [
     HomePage(),
     NotificationScreen(),
@@ -31,7 +29,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     return BlocBuilder<NavigationBloc, NavigationState>(
       builder: (context, state) {
         return Scaffold(
-          extendBody: true, // ensures transparency works
+          // extendBody: true,
           body: _pages[state.selectedIndex],
           bottomNavigationBar: CustomBottomNavBar(
             currentIndex: state.selectedIndex,

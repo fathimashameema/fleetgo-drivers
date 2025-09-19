@@ -132,12 +132,28 @@ class FirebaseDriverRepository implements DriverRepo {
   @override
   Future<Driver> signInWithGoogle() async {
     try {
-      final googleUser = await GoogleSignIn().signIn();
-      final googleAuth = await googleUser?.authentication;
+      // Configure Google Sign-In with proper scopes
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+          'profile',
+        ],
+      );
+      
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('Google sign-in was cancelled by user');
+      }
+      
+      log('Google user email: ${googleUser.email}');
+      log('Google user displayName: ${googleUser.displayName}');
+      log('Google user id: ${googleUser.id}');
+      
+      final googleAuth = await googleUser.authentication;
       final cred = await _firebaseAuth.signInWithCredential(
           GoogleAuthProvider.credential(
-              idToken: googleAuth?.idToken,
-              accessToken: googleAuth?.accessToken));
+              idToken: googleAuth.idToken,
+              accessToken: googleAuth.accessToken));
       final user = cred.user;
       
       if (user == null) {
@@ -154,17 +170,36 @@ class FirebaseDriverRepository implements DriverRepo {
       } else {
         // New user, create with default values and store in Firestore
         log('New user, creating with default values');
+        log('Firebase user email: ${user.email}');
+        log('Firebase user displayName: ${user.displayName}');
+        log('Firebase user uid: ${user.uid}');
+        
+        // Use Google user's email if Firebase user's email is empty
+        final String userEmail = user.email?.isNotEmpty == true 
+            ? user.email! 
+            : googleUser.email;
+        
+        final String userName = user.displayName?.isNotEmpty == true 
+            ? user.displayName! 
+            : googleUser.displayName ?? '';
+        
+        log('Final email to save: $userEmail');
+        log('Final name to save: $userName');
+        
         final Driver myUser = Driver(
             id: user.uid,
-            email: user.email ?? '',
-            name: user.displayName ?? '',
+            email: userEmail,
+            name: userName,
             number: user.phoneNumber ?? '',
             password: '',
             registrationProgress: 0,
             role: 'Driver');
         
+        log('Driver object email before saving: ${myUser.email}');
+        
         // Store the new user data in Firestore
         await firestoreRepo.setUserData(myUser);
+        log('User data saved to Firestore');
         return myUser;
       }
     } catch (e) {
@@ -338,7 +373,13 @@ class FirebaseDriverRepository implements DriverRepo {
               'Please sign out and sign in again using your email and password to delete your account.');
         } else if (providerId == 'google.com') {
           // Reauthenticate via Google Sign-In flow
-          final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+          final GoogleSignIn googleSignIn = GoogleSignIn(
+            scopes: [
+              'email',
+              'profile',
+            ],
+          );
+          final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
           if (googleUser != null) {
             final googleAuth = await googleUser.authentication;

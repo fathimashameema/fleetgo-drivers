@@ -16,7 +16,14 @@ class FirestoreDriverRepository extends FirestoreRepo {
   Future<void> setUserData(Driver user) async {
     try {
       log('firestore id : ${user.id}');
-      await userCollection.doc(user.id).set(user.toEntity().toDocument());
+      log('firestore email : ${user.email}');
+      log('firestore name : ${user.name}');
+      
+      final documentData = user.toEntity().toDocument();
+      log('Document data being saved: $documentData');
+      
+      await userCollection.doc(user.id).set(documentData);
+      log('Document saved successfully to Firestore');
     } catch (e) {
       log(e.toString());
       rethrow;

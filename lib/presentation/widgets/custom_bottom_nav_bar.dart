@@ -25,7 +25,7 @@ class CustomBottomNavBar extends StatelessWidget {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        color: Colors.transparent,
+        color: Theme.of(context).highlightColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(icons.length, (index) {

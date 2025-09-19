@@ -127,24 +127,7 @@ class AuthenticationBloc
       }
     });
   }
-  Future<void> _deleteUser(User user) async {
-    final String uid = user.uid;
-
-    try {
-      await firestoreRepo.deleteUser(uid);
-
-      await storageRepo.deleteUserDocument('Driver_Documents_$uid');
-
-      await driverRepo.deleteFirebaseUser(uid);
-      await FirebaseAuth.instance.signOut();
-
-      log('User deleted successfully.');
-    } catch (e) {
-      log('Error deleting user: $e');
-      rethrow;
-    }
-  }
-
+  
   @override
   Future<void> close() {
     _userSubscription.cancel();
